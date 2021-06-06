@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math
+from environment import Environment
 from position import Position
 
 class Glider:
@@ -77,12 +78,14 @@ class Glider:
         bank = min(Glider.__maxBank, max(Glider.__minBank, self.bank + control.horizontal * math.pi / 3))
         return Glider(self.position, self.direction, angle, bank)
 
-    def step(self) -> Glider:
+    def step(self, environment: Environment) -> Glider:
+        position = self.position
         horizontalMove = self.horizontalVelocity
         direction = (self.direction + self.angularVelocity) % (2 * math.pi)
-        x = math.cos(direction) * horizontalMove
-        y = math.sin(direction) * horizontalMove
-        z = self.verticalVelocity
+        wind = environment.horizontalWind(position)
+        x = math.cos(direction) * horizontalMove + math.cos(wind.direction) * wind.velocity
+        y = math.sin(direction) * horizontalMove + math.sin(wind.direction) * wind.velocity
+        z = self.verticalVelocity + environment.verticalWindVelocity(position)
         return Glider(self.position.move(x, y, z), direction, self.angle, self.bank)
 
 class Control:
