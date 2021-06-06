@@ -1,11 +1,12 @@
 import math
-from environment import MutableEnvironment, Wind
+from environment import MutableEnvironment, Thermal, Wind
 from glider import Control, Glider
 from position import Position
 
 def main() -> None:
     environment = MutableEnvironment()
     environment.addWind(Wind(10, 0), 80, 90)
+    environment.addThermal(Thermal(0, 0, 80, 105, 100, 2))
 
     glider = Glider(Position(0, 0, 100), 0, 0, 0)
     print(glider)
