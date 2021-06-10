@@ -71,10 +71,10 @@ class Glider:
 
     @property
     def angularVelocity(self) -> float:
-        return -self.bank / 3
+        return -self.bank / 6
 
     def apply(self, control: Control) -> Glider:
-        angle = min(Glider.__maxAngle, max(Glider.__minAngle, self.angle + control.pitch))
+        angle = min(Glider.__maxAngle, max(Glider.__minAngle, self.angle + control.pitch * math.pi / 90))
         bank = min(Glider.__maxBank, max(Glider.__minBank, self.bank + control.horizontal * math.pi / 3))
         return Glider(self.position, self.direction, angle, bank)
 
