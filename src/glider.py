@@ -74,7 +74,7 @@ class Glider:
         return -self.bank / 3
 
     def apply(self, control: Control) -> Glider:
-        angle = min(Glider.__maxAngle, max(Glider.__minAngle, self.angle + control.longitudinal))
+        angle = min(Glider.__maxAngle, max(Glider.__minAngle, self.angle + control.pitch))
         bank = min(Glider.__maxBank, max(Glider.__minBank, self.bank + control.horizontal * math.pi / 3))
         return Glider(self.position, self.direction, angle, bank)
 
@@ -89,16 +89,16 @@ class Glider:
         return Glider(self.position.move(x, y, z), direction, self.angle, self.bank)
 
 class Control:
-    def __init__(self, loingitudinal: float, horizontal: float) -> None:
-        self.__longitudinal = loingitudinal
+    def __init__(self, pitch: float, horizontal: float) -> None:
+        self.__pitch = pitch
         self.__horizontal = horizontal
 
-    # -1 <= logitudinal <= 1
+    # -1 <= pitch <= 1
     # 1 means pushing forward
     # -1 means pulling in
     @property
-    def longitudinal(self) -> float:
-        return self.__longitudinal
+    def pitch(self) -> float:
+        return self.__pitch
 
     # -1 <= horizontal <= 1
     # 1 means move to the right
