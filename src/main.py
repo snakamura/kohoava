@@ -1,4 +1,5 @@
 import math
+import random
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -9,14 +10,16 @@ from glider import Control, Glider
 from position import Position
 
 def main() -> None:
-    environment = MutableEnvironment()
-    environment.addWind(Wind(10, 0), 80, 90)
-    environment.addThermal(Thermal(0, 0, 80, 105, 100, 5))
+    random.seed()
 
-    glider = Glider(Position(0, 0, 100), 0, 0, math.pi / 9)
+    environment = MutableEnvironment()
+    environment.addWind(Wind(1, 0), 100, 1000)
+    environment.addThermal(Thermal(0, 0, 100, 1000, 100, 3))
+
+    glider = Glider(Position(-100, 0, 300), 0, 0, 0)
 
     def next(glider: Glider, n: int) -> Glider:
-        glider = glider.apply(Control(0, 0))
+        glider = glider.apply(Control(random.uniform(-1, 1), random.uniform(-1, 1)))
         glider = glider.step(environment)
         return glider
 
