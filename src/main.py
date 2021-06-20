@@ -23,9 +23,9 @@ def main() -> None:
         glider = glider.step(environment)
         return glider
 
-    gliders: List[Glider] = list(accumulate(range(100), next, initial=glider))
-    for glider in gliders:
-        print(glider)
+    gliders: List[Glider] = list(filter(lambda glider: glider.position.z >= 0, accumulate(range(100), next, initial=glider)))
+    for index, glider in enumerate(gliders):
+        print(index, glider)
 
     plot(gliders)
 
