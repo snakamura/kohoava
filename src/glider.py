@@ -4,12 +4,12 @@ from environment import Environment
 from position import Position
 
 class Glider:
-    __maxAngle: float = math.pi / 18
-    __minAngle: float = -math.pi / 4
-    __stallAngle: float = math.pi / 36
+    maxAngle: float = math.pi / 18
+    minAngle: float = -math.pi / 4
+    stallAngle: float = math.pi / 36
 
-    __maxBank: float = math.pi / 3
-    __minBank: float = -math.pi / 3
+    maxBank: float = math.pi / 3
+    minBank: float = -math.pi / 3
 
     def __init__(self, position: Position, direction: float, angle: float, bank: float) -> None:
         self.__position = position
@@ -50,12 +50,12 @@ class Glider:
     #   30 @ angle = -math.pi/4
     @property
     def horizontalVelocity(self) -> float:
-        if self.angle > Glider.__stallAngle:
+        if self.angle > Glider.stallAngle:
             return 0
         elif self.angle > 0:
-            return 10 - self.angle / Glider.__maxAngle * 3
+            return 10 - self.angle / Glider.maxAngle * 3
         else:
-            return 10 - self.angle / Glider.__minAngle * 20
+            return 10 - self.angle / Glider.minAngle * 20
 
     # @ bank = 0
     #   -10 @ angle > math.pi/36
@@ -64,18 +64,18 @@ class Glider:
     #   -3.25 @ angle = -math.pi/4
     @property
     def verticalVelocity(self) -> float:
-        if self.angle > Glider.__stallAngle:
+        if self.angle > Glider.stallAngle:
             return -10
         else:
-            return (-1 + self.angle / Glider.__stallAngle * 0.25) * (1 + math.sin(abs(self.bank)))
+            return (-1 + self.angle / Glider.stallAngle * 0.25) * (1 + math.sin(abs(self.bank)))
 
     @property
     def angularVelocity(self) -> float:
         return -self.bank / 6
 
     def apply(self, control: Control) -> Glider:
-        angle = min(Glider.__maxAngle, max(Glider.__minAngle, self.angle + control.pitch * math.pi / 90))
-        bank = min(Glider.__maxBank, max(Glider.__minBank, self.bank + control.horizontal * math.pi / 3))
+        angle = min(Glider.maxAngle, max(Glider.minAngle, self.angle + control.pitch * math.pi / 90))
+        bank = min(Glider.maxBank, max(Glider.minBank, self.bank + control.horizontal * math.pi / 3))
         return Glider(self.position, self.direction, angle, bank)
 
     def step(self, environment: Environment) -> Glider:
