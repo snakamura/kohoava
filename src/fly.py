@@ -1,28 +1,31 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import accumulate
-from typing import Callable, List
+from typing import Callable, List, Optional, Tuple
 from environment import Environment, MutableEnvironment, Thermal, Wind
 from glider import Control, Glider
 from position import Position
 
-def testFly(control: Callable[[Glider], Control]) -> None:
+def testFly(step: Callable[[Glider], Tuple[Control, Optional[Callable[[Glider], None]]]]) -> None:
     environment = MutableEnvironment()
     environment.addWind(Wind(1, 0), 100, 1000)
     environment.addThermal(Thermal(0, 0, 100, 1000, 100, 3))
 
     glider = Glider(Position(-100, 0, 300), 0, 0, 0)
 
-    gliders = fly(glider, environment, control)
+    gliders = fly(glider, environment, step)
 
     for index, glider in enumerate(gliders):
         print(index, glider)
     plot(gliders)
 
-def fly(glider: Glider, environment: Environment, control: Callable[[Glider], Control]) -> List[Glider]:
+def fly(glider: Glider, environment: Environment, step: Callable[[Glider], Tuple[Control, Optional[Callable[[Glider], None]]]]) -> List[Glider]:
     def next(glider: Glider, n: int) -> Glider:
-        glider = glider.apply(control(glider))
+        control, next = step(glider)
+        glider = glider.apply(control)
         glider = glider.step(environment)
+        if next is not None:
+            next(glider)
         return glider
 
     return list(filter(lambda glider: glider.position.z >= 0,
