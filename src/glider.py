@@ -75,7 +75,7 @@ class Glider:
 
     def apply(self, control: Control) -> Glider:
         angle = min(Glider.maxAngle, max(Glider.minAngle, self.angle + control.pitch * math.pi / 90))
-        bank = min(Glider.maxBank, max(Glider.minBank, self.bank + control.horizontal * math.pi / 3))
+        bank = min(Glider.maxBank, max(Glider.minBank, self.bank + control.roll * math.pi / 3))
         return Glider(self.position, self.direction, angle, bank)
 
     def step(self, environment: Environment) -> Glider:
@@ -89,9 +89,9 @@ class Glider:
         return Glider(self.position.move(x, y, z), direction, self.angle, self.bank)
 
 class Control:
-    def __init__(self, pitch: float, horizontal: float) -> None:
+    def __init__(self, pitch: float, roll: float) -> None:
         self.__pitch = pitch
-        self.__horizontal = horizontal
+        self.__roll = roll
 
     # -1 <= pitch <= 1
     # 1 means pushing forward
@@ -100,9 +100,9 @@ class Control:
     def pitch(self) -> float:
         return self.__pitch
 
-    # -1 <= horizontal <= 1
+    # -1 <= roll <= 1
     # 1 means move to the right
     # -1 means move to the left
     @property
-    def horizontal(self) -> float:
-        return self.__horizontal
+    def roll(self) -> float:
+        return self.__roll
