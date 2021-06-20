@@ -26,13 +26,14 @@ class Environment(ABC):
         pass
 
 class Thermal:
-    def __init__(self, x: float, y: float, minZ: float, maxZ: float, radius: float, velocity: float) -> None:
+    def __init__(self, x: float, y: float, minZ: float, maxZ: float, radius: float, velocity: float, flat: bool = False) -> None:
         self.__x = x
         self.__y = y
         self.__minZ = minZ
         self.__maxZ = maxZ
         self.__radius = radius
         self.__velocity = velocity
+        self.__flat = flat
 
     def velocity(self, position: Position) -> Optional[float]:
         if position.z < self.__minZ or self.__maxZ <= position.z:
@@ -41,6 +42,8 @@ class Thermal:
         distance = math.sqrt((position.x - self.__x) ** 2 + (position.y - self.__y) ** 2)
         if distance > self.__radius:
             return None
+        elif self.__flat:
+            return self.__velocity
         else:
             return math.log2(2 - distance / self.__radius) * self.__velocity
 
