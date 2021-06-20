@@ -18,7 +18,7 @@ class Glider:
         self.__bank = bank
 
     def __str__(self) -> str:
-        return f'p:({self.position}), d:{self.direction / math.pi * 180:3.0f}, a:{self.angle / math.pi * 180:3.0f}, b:{self.bank / math.pi * 180:3.0f}'
+        return f'position:({self.position}), direction:{self.direction / math.pi * 180:3.0f}, angle:{self.angle / math.pi * 180:3.0f}, bank:{self.bank / math.pi * 180:3.0f}'
 
     @property
     def position(self) -> Position:
@@ -92,6 +92,9 @@ class Control:
     def __init__(self, pitch: float, roll: float) -> None:
         self.__pitch = pitch
         self.__roll = roll
+
+    def __str__(self) -> str:
+        return f'pitch:{self.pitch:3.2f}, roll:{self.roll:3.2f}'
 
     # -1 <= pitch <= 1
     # 1 means pushing forward
