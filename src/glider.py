@@ -74,8 +74,8 @@ class Glider:
         return -self.bank / 6
 
     def apply(self, control: Control) -> Glider:
-        angle = min(Glider.maxAngle, max(Glider.minAngle, self.angle + control.pitch * math.pi / 90))
-        bank = min(Glider.maxBank, max(Glider.minBank, self.bank + control.roll * math.pi / 3))
+        angle = min(Glider.maxAngle, max(Glider.minAngle, self.angle + control.pitch * math.pi / 36))
+        bank = min(Glider.maxBank, max(Glider.minBank, self.bank + control.roll * math.pi / 36))
         return Glider(self.position, self.direction, angle, bank)
 
     def step(self, environment: Environment) -> Glider:
