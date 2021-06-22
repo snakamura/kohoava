@@ -16,7 +16,7 @@ def main() -> None:
     actionControl = ActionControl(pitchActions, rollActions)
 
     for episode in range(10000):
-        def step(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
+        def stepTrain(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
             state = stateDigitizer.state(glider)
             action = q.action(state, episode)
             control = actionControl.control(action)
@@ -28,7 +28,14 @@ def main() -> None:
 
             return control, update
 
-        gliders = testFly(maxAltitude, step)
+        testFly(maxAltitude, stepTrain)
+
+    def stepTest(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
+        state = stateDigitizer.state(glider)
+        action = q.action(state)
+        control = actionControl.control(action)
+        return control, None
+    gliders = testFly(maxAltitude, stepTest)
 
     for index, glider in enumerate(gliders):
         print(index, glider)
@@ -101,12 +108,15 @@ class Q:
         self.__gamma = gamma
         self.__table = np.random.uniform(low=0, high=1, size=(numberOfStates, numberOfActions))
 
-    def action(self, state: State, episode: int) -> Action:
-        epsilon = 0.5 * (1 / (episode + 1))
-        if epsilon < np.random.uniform(0, 1):
+    def action(self, state: State, episode: Optional[int] = None) -> Action:
+        if episode is None:
             return Action(np.argmax(self.__table[state][:]))
         else:
-            return np.random.choice(self.__numberOfActions)
+            epsilon = 0.5 * (1 / (episode + 1))
+            if epsilon < np.random.uniform(0, 1):
+                return Action(np.argmax(self.__table[state][:]))
+            else:
+                return np.random.choice(self.__numberOfActions)
 
     def update(self, state: State, action: Action, reward: Reward, nextState: State) -> None:
         maxQNext = max(self.__table[nextState][:])
