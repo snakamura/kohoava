@@ -79,7 +79,7 @@ class ActionControl:
 
 class StateDigitizer:
     def __init__(self, maxAltitude: float) -> None:
-        self.numberOfZ = int(maxAltitude / 2)
+        self.numberOfZ = int(maxAltitude)
         self.numberOfDirection = 36 * 2
         self.numberOfAngle = 10 * 2
         self.numberOfBank = 10 * 2
