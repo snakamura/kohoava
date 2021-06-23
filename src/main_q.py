@@ -1,3 +1,4 @@
+import argparse
 import math
 import numpy as np
 from typing import Callable, List, Optional, Tuple
@@ -6,7 +7,7 @@ from fly import fly, plot
 from glider import Control, Glider
 from position import Position
 
-def main() -> None:
+def main(args) -> None:
     maxAltitude = 500
     pitchActions = 10
     rollActions = 10
@@ -15,20 +16,23 @@ def main() -> None:
     q = Q(stateDigitizer.states, pitchActions * rollActions)
     actionControl = ActionControl(pitchActions, rollActions)
 
-    for episode in range(10000):
-        def stepTrain(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
-            state = stateDigitizer.state(glider)
-            action = q.action(state, episode)
-            control = actionControl.control(action)
+    if args.load is not None:
+        q.load(args.load)
+    else:
+        for episode in range(10000):
+            def stepTrain(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
+                state = stateDigitizer.state(glider)
+                action = q.action(state, episode)
+                control = actionControl.control(action)
 
-            def update(nextGlider: Glider) -> None:
-                nextState = stateDigitizer.state(nextGlider)
-                reward = -1 if nextGlider.position.z <= 0 else 1 if nextGlider.position.z >= maxAltitude else 0.5 if nextGlider.position.z > glider.position.z else 0
-                q.update(state, action, reward, nextState)
+                def update(nextGlider: Glider) -> None:
+                    nextState = stateDigitizer.state(nextGlider)
+                    reward = -1 if nextGlider.position.z <= 0 else 1 if nextGlider.position.z >= maxAltitude else 0.5 if nextGlider.position.z > glider.position.z else 0
+                    q.update(state, action, reward, nextState)
 
-            return control, update
+                return control, update
 
-        testFly(maxAltitude, stepTrain)
+            testFly(maxAltitude, stepTrain)
 
     def stepTest(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
         state = stateDigitizer.state(glider)
@@ -40,6 +44,9 @@ def main() -> None:
     for index, glider in enumerate(gliders):
         print(index, glider)
     plot(gliders)
+
+    if args.save is not None:
+        q.save(args.save)
 
 def testFly(maxAltitude: float, step: Callable[[Glider], Tuple[Control, Optional[Callable[[Glider], None]]]]) -> List[Glider]:
     maxNumberOfSteps = 1000
@@ -123,5 +130,15 @@ class Q:
         self.__table[state, action] = (self.__table[state, action] +
             self.__eta * (reward + self.__gamma * maxQNext - self.__table[state, action]))
 
+    def save(self, path: str) -> None:
+        np.save(path, self.__table)
+
+    def load(self, path: str) -> None:
+        self.__table = np.load(path)
+
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--load")
+    parser.add_argument("--save")
+    args = parser.parse_args()
+    main(args)
