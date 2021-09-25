@@ -9,12 +9,15 @@ from position import Position
 
 def main(args) -> None:
     maxAltitude = 500
-    pitchActions = 10
-    rollActions = 10
+    numberOfDirections = 36 * 2
+    numberOfAngles = 10 * 2
+    numberOfBanks = 10 * 2
+    numberOfPitchActions = 10
+    numberOfRollActions = 10
 
-    stateDigitizer = StateDigitizer(maxAltitude)
-    q = Q(stateDigitizer.states, pitchActions * rollActions)
-    actionControl = ActionControl(pitchActions, rollActions)
+    stateDigitizer = StateDigitizer(maxAltitude, numberOfDirections, numberOfAngles, numberOfBanks)
+    actionControl = ActionControl(numberOfPitchActions, numberOfRollActions)
+    q = Q(stateDigitizer.numberOfStates, actionControl.numberOfActions)
 
     if args.load is not None:
         q.load(args.load)
@@ -64,34 +67,38 @@ Action = int
 Reward = float
 
 class ActionControl:
-    def __init__(self, pitchActions: int, rollActions: int):
-        self.__pitchActions = pitchActions
-        self.__rollActions = rollActions
+    def __init__(self, numberOfPitchActions: int, numberOfRollActions: int):
+        self.__numberOfPitchActions = numberOfPitchActions
+        self.__numberOfRollActions = numberOfRollActions
+
+    @property
+    def numberOfActions(self) -> Action:
+        return self.__numberOfPitchActions * self.__numberOfRollActions
 
     def control(self, action: Action) -> Control:
-        pitchAction = action % self.__pitchActions
-        pitch = float(pitchAction) / self.__pitchActions * 2 - 1
+        pitchAction = action % self.__numberOfPitchActions
+        pitch = float(pitchAction) / self.__numberOfPitchActions * 2 - 1
 
-        rollAction = int(action / self.__pitchActions)
-        roll = float(rollAction) / self.__rollActions * 2 - 1
+        rollAction = int(action / self.__numberOfPitchActions)
+        roll = float(rollAction) / self.__numberOfRollActions * 2 - 1
 
         return Control(pitch, roll)
 
 class StateDigitizer:
-    def __init__(self, maxAltitude: float) -> None:
-        self.numberOfZ = int(maxAltitude)
-        self.numberOfDirection = 36 * 2
-        self.numberOfAngle = 10 * 2
-        self.numberOfBank = 10 * 2
+    def __init__(self, maxAltitude: float, numberOfDirections: int, numberOfAngles: int, numberOfBanks: int) -> None:
+        self.__numberOfZs = int(maxAltitude)
+        self.__numberOfDirections = numberOfDirections
+        self.__numberOfAngles = numberOfAngles
+        self.__numberOfBanks = numberOfBanks
 
-        self.__zBins = StateDigitizer.__bins(0, maxAltitude, self.numberOfZ)
-        self.__directionBins = StateDigitizer.__bins(0, 2 * math.pi, self.numberOfDirection)
-        self.__angleBins = StateDigitizer.__bins(Glider.minAngle, Glider.maxAngle, self.numberOfAngle)
-        self.__bankBins = StateDigitizer.__bins(Glider.minBank, Glider.maxBank, self.numberOfBank)
+        self.__zBins = StateDigitizer.__bins(0, maxAltitude, self.__numberOfZs)
+        self.__directionBins = StateDigitizer.__bins(0, 2 * math.pi, self.__numberOfDirections)
+        self.__angleBins = StateDigitizer.__bins(Glider.minAngle, Glider.maxAngle, self.__numberOfAngles)
+        self.__bankBins = StateDigitizer.__bins(Glider.minBank, Glider.maxBank, self.__numberOfBanks)
 
     @property
-    def states(self) -> State:
-        return self.numberOfZ * self.numberOfDirection * self.numberOfAngle * self.numberOfBank
+    def numberOfStates(self) -> State:
+        return self.__numberOfZs * self.__numberOfDirections * self.__numberOfAngles * self.__numberOfBanks
 
     def state(self, glider: Glider) -> State:
         z = np.digitize(glider.position.z, bins=self.__zBins)
@@ -100,9 +107,9 @@ class StateDigitizer:
         bank = np.digitize(glider.bank, bins=self.__bankBins)
 
         return z + \
-            direction * self.numberOfZ + \
-            angle * self.numberOfZ * self.numberOfDirection + \
-            bank * self.numberOfZ * self.numberOfDirection * self.numberOfAngle
+            direction * self.__numberOfZs + \
+            angle * self.__numberOfZs * self.__numberOfDirections + \
+            bank * self.__numberOfZs * self.__numberOfDirections * self.__numberOfAngles
 
     @staticmethod
     def __bins(min: float, max: float, number: int):
