@@ -30,7 +30,7 @@ def main(args) -> None:
 
                 def update(nextGlider: Glider) -> None:
                     nextState = stateDigitizer.state(nextGlider)
-                    reward = -1 if nextGlider.position.z <= 0 else 1 if nextGlider.position.z >= maxAltitude else 0.5 if nextGlider.position.z > glider.position.z else 0
+                    reward = -1 if nextGlider.position.z <= 0 else 1 if nextGlider.position.z >= maxAltitude else 0
                     q.update(state, action, reward, nextState)
 
                 return control, update
