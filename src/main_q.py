@@ -123,14 +123,15 @@ class Q:
         self.__table = np.random.uniform(low=0, high=1, size=(numberOfStates, numberOfActions))
 
     def action(self, state: State, episode: Optional[int] = None) -> Action:
-        if episode is None:
-            return Action(np.argmax(self.__table[state][:]))
-        else:
+        isRandom = False
+        if episode is not None:
             epsilon = 0.5 * (1 / (episode + 1))
-            if epsilon < np.random.uniform(0, 1):
-                return Action(np.argmax(self.__table[state][:]))
-            else:
-                return np.random.choice(self.__numberOfActions)
+            isRandom = epsilon >= np.random.uniform(0, 1)
+
+        if isRandom:
+            return np.random.choice(self.__numberOfActions)
+        else:
+            return Action(np.argmax(self.__table[state][:]))
 
     def update(self, state: State, action: Action, reward: Reward, nextState: State) -> None:
         maxQNext = max(self.__table[nextState][:])
