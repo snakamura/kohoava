@@ -35,7 +35,8 @@ def main(args) -> None:
 
                 return control, update
 
-            testFly(maxAltitude, stepTrain)
+            gliders = testFly(maxAltitude, stepTrain)
+            print(f"{episode}: {gliders[-1].position.z}")
 
     def stepTest(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
         state = stateDigitizer.state(glider)
