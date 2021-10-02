@@ -22,7 +22,7 @@ def main(args) -> None:
     if args.load is not None:
         q.load(args.load)
     else:
-        for episode in range(10000):
+        for episode in range(1000):
             def stepTrain(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
                 state = stateDigitizer.state(glider)
                 action = q.action(state, episode)
@@ -30,7 +30,11 @@ def main(args) -> None:
 
                 def update(nextGlider: Glider) -> None:
                     nextState = stateDigitizer.state(nextGlider)
-                    reward = -1 if nextGlider.position.z <= 0 else 1 if nextGlider.position.z >= maxAltitude else 0
+                    reward = -5 if nextGlider.isStalled else \
+                             -1 if nextGlider.position.z <= 0 else \
+                              1 if nextGlider.position.z >= maxAltitude else \
+                           -0.1 if nextGlider.position.z < glider.position.z else \
+                            0.1 if nextGlider.position.z > glider.position.z else 0
                     q.update(state, action, reward, nextState)
 
                 return control, update
