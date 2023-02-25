@@ -41,12 +41,13 @@ def fly(glider: Glider, environment: Environment, maxNumberOfSteps: int, maxAlti
 
 def plot(gliders: List[Glider]) -> None:
     fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
 
     x = np.array(list(map(lambda glider: glider.position.x, gliders)))
     y = np.array(list(map(lambda glider: glider.position.y, gliders)))
     z = np.array(list(map(lambda glider: glider.position.z, gliders)))
 
     ax.plot(x, y, z, color='blue')
+    ax.plot(x, y, color='black')
 
     plt.show()
