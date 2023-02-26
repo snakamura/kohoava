@@ -5,7 +5,7 @@ from position import Position
 
 class Glider:
     maxAngle: float = math.pi / 18
-    minAngle: float = -math.pi / 4
+    minAngle: float = -math.pi / 12
     stallAngle: float = math.pi / 36
 
     maxBank: float = math.pi / 3
@@ -31,8 +31,8 @@ class Glider:
     def direction(self) -> float:
         return self.__direction
 
-    # -math.pi/4 <= angle <= math.pi/18
-    # Stall if angle > math.pi/36
+    # -pi/12 <= angle <= pi/18
+    # Stall if angle > pi/36
     @property
     def angle(self) -> float:
         return self.__angle
@@ -45,9 +45,9 @@ class Glider:
 
     # @ bank = 0
     #   0 @ angle > math.pi/36
-    #   7 @ angle = math.pi/36
+    #   8.5 @ angle = math.pi/36
     #   10 @ angle = 0
-    #   30 @ angle = -math.pi/4
+    #   20 @ angle = -math.pi/12
     @property
     def horizontalVelocity(self) -> float:
         if self.angle > Glider.stallAngle:
@@ -55,19 +55,21 @@ class Glider:
         elif self.angle > 0:
             return 10 - self.angle / Glider.maxAngle * 3
         else:
-            return 10 - self.angle / Glider.minAngle * 20
+            return 10 + self.angle / Glider.minAngle * 10
 
     # @ bank = 0
     #   -10 @ angle > math.pi/36
     #   -0.75 @ angle = math.pi/36
     #   -1 @ angle = 0
-    #   -3.25 @ angle = -math.pi/4
+    #   -4 @ angle = -math.pi/12
     @property
     def verticalVelocity(self) -> float:
         if self.angle > Glider.stallAngle:
             return -10
+        elif self.angle >= 0:
+            return (-1 + self.angle / Glider.stallAngle / 2) * (1 + math.sin(abs(self.bank)))
         else:
-            return (-1 + self.angle / Glider.stallAngle * 0.25) * (1 + math.sin(abs(self.bank)))
+            return (-1 + self.angle / Glider.stallAngle) * (1 + math.sin(abs(self.bank)))
 
     @property
     def angularVelocity(self) -> float:
