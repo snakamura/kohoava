@@ -6,7 +6,7 @@ import torch
 from torch import nn
 from torch import optim
 from typing import Callable, List, Optional, Tuple
-from environment import MutableEnvironment, Thermal, Wind
+from environment import Environment, MutableEnvironment, Thermal, Wind
 from fly import fly, plot
 from glider import Control, Glider
 from position import Position
@@ -22,6 +22,12 @@ def main(args) -> None:
     actionControl = ActionControl(numberOfPitchActions, numberOfRollActions)
     dqn = DQN(numberOfStates, actionControl.numberOfActions, batchSize, transitionsCapacity)
 
+    environment = MutableEnvironment()
+#    environment.addWind(Wind(1, 0), 100, 1000)
+    thermals = [Thermal(0, 0, 100, 600, 500, 3)]
+    for thermal in thermals:
+        environment.addThermal(thermal)
+
     for episode in range(10000):
         def stepTrain(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
             state = stateFromGlider(glider)
@@ -36,25 +42,21 @@ def main(args) -> None:
 
             return control, update
 
-        testFly(maxAltitude, stepTrain)
+        testFly(environment, maxAltitude, stepTrain)
 
     def stepTest(glider: Glider) -> Tuple[Control, Optional[Callable[[Glider], None]]]:
         state = stateFromGlider(glider)
         action = dqn.action(state)
         control = actionControl.control(action)
         return control, None
-    gliders = testFly(maxAltitude, stepTest)
+    gliders = testFly(environment, maxAltitude, stepTest)
 
     for index, glider in enumerate(gliders):
         print(index, glider)
-    plot(gliders)
+    plot(gliders, thermals)
 
-def testFly(maxAltitude: float, step: Callable[[Glider], Tuple[Control, Optional[Callable[[Glider], None]]]]) -> List[Glider]:
+def testFly(environment: Environment, maxAltitude: float, step: Callable[[Glider], Tuple[Control, Optional[Callable[[Glider], None]]]]) -> List[Glider]:
     maxNumberOfSteps = 1000
-
-    environment = MutableEnvironment()
-#    environment.addWind(Wind(1, 0), 100, 1000)
-    environment.addThermal(Thermal(0, 0, 100, 1000, 500, 3))
 
     glider = Glider(Position(-100, 0, 300), 0, 0, 0)
 

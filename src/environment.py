@@ -35,6 +35,26 @@ class Thermal:
         self.__velocity = velocity
         self.__flat = flat
 
+    @property
+    def x(self) -> float:
+        return self.__x
+
+    @property
+    def y(self) -> float:
+        return self.__y
+
+    @property
+    def minZ(self) -> float:
+        return self.__minZ
+
+    @property
+    def maxZ(self) -> float:
+        return self.__maxZ
+
+    @property
+    def radius(self) -> float:
+        return self.__radius
+
     def velocity(self, position: Position) -> Optional[float]:
         if position.z < self.__minZ or self.__maxZ <= position.z:
             return None
